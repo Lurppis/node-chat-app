@@ -1,5 +1,4 @@
 var socket = io();
-var params;
 
 function scrollToBottom() {
 	// Selectors
@@ -18,7 +17,7 @@ function scrollToBottom() {
 }
 
 socket.on('connect', function () {
-	params = jQuery.deparam(window.location.search);
+	var params = jQuery.deparam(window.location.search);
 
 	socket.emit('join', params, function (err) {
 		if (err) {
@@ -28,9 +27,6 @@ socket.on('connect', function () {
 			console.log('No error');
 		}
 	});
-});
-socket.on('disconnect', function () {
-	console.log('Disconected from server.');
 });
 
 socket.on('newMessage', function (message) {
@@ -50,7 +46,7 @@ socket.on('newLocationMessage', function (message) {
 	var template = jQuery('#location-message-templete').html();
 	var formettedTime = moment(message.createdAt).format('h:mm a');
 	var html = Mustache.render(template, {
-		from: message.name,
+		from: message.from,
 		createdAt: formettedTime,
 		url: message.url
 	});
@@ -75,7 +71,6 @@ jQuery('#message-form').on('submit', function (event) {
 	var messageTextbox = jQuery('#message');
 
 	socket.emit('createMessage', {
-		from: params.name,
 		text: messageTextbox.val()
 	}, function () {
 		messageTextbox.val('');
@@ -94,7 +89,6 @@ locationButton.on('click', function () {
 	navigator.geolocation.getCurrentPosition(function (position) {
 		locationButton.removeAttr('disabled').text('Send location');
 		socket.emit('createLocationMessage', {
-			from: params.name,
 			latitude: position.coords.latitude,
 			longitude: position.coords.longitude
 		});
