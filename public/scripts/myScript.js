@@ -8,23 +8,27 @@ socket.on('disconnect', function () {
 });
 
 socket.on('newMessage', function (message) {
+	var template = jQuery('#message-templete').html();
 	var formettedTime = moment(message.createdAt).format('h:mm a');
-	var li = jQuery('<li></li>');
-	li.text(`${message.from} ${formettedTime}: ${message.text}`);
+	var html = Mustache.render(template, {
+		from: message.from,
+		text: message.text,
+		createdAt: formettedTime
+	});
 
-	jQuery('#messages').append(li);
+	jQuery('#messages').append(html);
 });
 
 socket.on('newLocationMessage', function (message) {
-	var li = jQuery('<li></li>');
-	var a = jQuery('<a target="_blank">Here I\'m</a>');
+	var template = jQuery('#location-message-templete').html();
 	var formettedTime = moment(message.createdAt).format('h:mm a');
+	var html = Mustache.render(template, {
+		from: message.from,
+		createdAt: formettedTime,
+		url: message.url
+	});
 
-	li.text(`${message.from} ${formettedTime}: `);
-	a.attr('href', message.url);
-	li.append(a);
-
-	jQuery('#messages').append(li);
+	jQuery('#messages').append(html);
 });
 
 jQuery('#message-form').on('submit', function (event) {
